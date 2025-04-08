@@ -25,7 +25,9 @@ const GraphSection = ({ batch, rollNumber }) => {
     console.log(`Fetching data for batch: ${batch}, roll: ${rollNumber}`);
 
     axios
-      .get(`http://localhost:5000/api/graph-data/${batch}/${rollNumber}`)
+      .get(
+        `https://cgpa-backend-z11k.onrender.com/api/graph-data/${batch}/${rollNumber}`
+      )
       .then((response) => {
         console.log("Response received:", response.data);
         setGraphData(response.data);

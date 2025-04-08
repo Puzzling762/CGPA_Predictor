@@ -37,7 +37,7 @@ function PredictorPage() {
     setBatch(rollNumber.substring(0, 4));
 
     try {
-      const response = await axios.post("http://localhost:5000/api/predict-cgpa", {
+      const response = await axios.post("https://cgpa-backend-z11k.onrender.com/api/predict-cgpa", {
         roll_number: rollNumber.toUpperCase(),
         target_cgpa: targetCGPA,
       });
