@@ -37,11 +37,6 @@ const connectDB = async () => {
 };
 
 // Start Server Only After DB Connection
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-  });
-});
 
 // Sample Route
 app.get("/", (req, res) => {
@@ -176,4 +171,10 @@ app.get("/api/graph-data/:batch/:rollNumber", async (req, res) => {
     console.error("❌ Error fetching student graph data:", error);
     res.status(500).json({ error: "Failed to fetch graph data" });
   }
+});
+
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
 });
