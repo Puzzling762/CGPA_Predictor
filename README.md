@@ -35,14 +35,18 @@ cd cgpa-predictor
 
 ```
 ###2. Start the backend
+```bash
 cd backend
 npm install
 npm run dev
+```
 ⚙️ Make sure to configure environment variables (e.g., .env file) if required.
 
 ###3. Start the frontend
+```bash
 cd frontend
 npm install
 npm start
+```
 
 
