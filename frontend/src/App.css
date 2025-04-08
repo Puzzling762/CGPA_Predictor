@@ -1,0 +1,14 @@
+/* Hide number input arrows in Chrome, Safari, Edge, and Opera */
+input[type="number"] {
+    appearance: textfield; /* Standard property */
+    -webkit-appearance: none; /* WebKit browsers */
+    -moz-appearance: textfield; /* Firefox */
+  }
+  
+  /* Hide number input arrows in Firefox */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
