@@ -5,7 +5,7 @@ import "./App.css";
 import PredictionCard from "./components/Card";
 import GraphSection from "./components/GraphSection";
 import TermsAndConditions from "./components/TermsConditions";
-const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+
 
 function PredictorPage() {
   const [rollNumber, setRollNumber] = useState("");
@@ -37,11 +37,11 @@ function PredictorPage() {
     setBatch(rollNumber.substring(0, 4));
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/predict-cgpa`, {
+      const response = await axios.post("http://localhost:5000/api/predict-cgpa", {
         roll_number: rollNumber.toUpperCase(),
         target_cgpa: targetCGPA,
       });
-      
+
       setPredictionData(response.data);
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong!");
