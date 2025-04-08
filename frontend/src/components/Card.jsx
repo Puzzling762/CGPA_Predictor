@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, Typography, Box, LinearProgress, Alert } from '@mui/material';
 import { EmojiEvents, TrendingUp, TrendingDown, BarChart, Whatshot } from '@mui/icons-material';
 
+
 const PredictionCard = ({ predictionData }) => {
   // Check if predictionData or predictionData.details is undefined
   const hasDetails = predictionData && predictionData.details;

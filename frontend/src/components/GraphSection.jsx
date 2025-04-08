@@ -10,6 +10,8 @@ const GraphSection = ({ batch, rollNumber }) => {
   const [targetMessage, setTargetMessage] = useState("");
   const [targetAchieved, setTargetAchieved] = useState(false);
 
+  const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+
   useEffect(() => {
     if (!batch || !rollNumber) {
       setError("Missing batch or roll number");
@@ -25,7 +27,7 @@ const GraphSection = ({ batch, rollNumber }) => {
     console.log(`Fetching data for batch: ${batch}, roll: ${rollNumber}`);
 
     axios
-      .get(`http://localhost:5000/api/graph-data/${batch}/${rollNumber}`)
+      .get(`${BASE_URL}/api/graph-data/${batch}/${rollNumber}`)
       .then((response) => {
         console.log("Response received:", response.data);
         setGraphData(response.data);
