@@ -38,7 +38,7 @@ cd cgpa-predictor
 ```bash
 cd backend
 npm install
-npm run dev
+node server.js
 ```
 ⚙️ Make sure to configure environment variables (e.g., .env file) if required.
 
@@ -46,7 +46,7 @@ npm run dev
 ```bash
 cd frontend
 npm install
-npm start
+npm run dev
 ```
 
 
