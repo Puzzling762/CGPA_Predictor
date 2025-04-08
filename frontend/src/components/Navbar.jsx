@@ -96,7 +96,7 @@ function ResponsiveAppBar() {
               {/* GitHub Repo in Mobile Menu */}
               <MenuItem onClick={handleMenuItemClick}>
                 <a
-                  href="https://github.com/RajLucky" // Replace with your actual GitHub repo
+                  href="https://github.com/Puzzling762/CGPA_Predictor" 
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
