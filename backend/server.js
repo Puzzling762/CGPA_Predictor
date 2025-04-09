@@ -48,21 +48,38 @@ app.get("/", (req, res) => {
   res.send("🎯 CGPA Predictor API is running...");
 });
 
-// 📌 API Route: Fetch Graph Data
-// 📌 API Route: Fetch Graph Data
+
+// 📌 API Route: Fetch Graph Data with Program-Specific Ranking
 app.get("/api/graph-data/:batch/:rollNumber", async (req, res) => {
   try {
     const { batch, rollNumber } = req.params;
     const collection = mongoose.connection.db.collection(batch);
 
+    // Find the target student
     const student = await collection.findOne({ Regn: rollNumber });
     if (!student) {
       console.log(`📉 No data found for student ${rollNumber} in batch ${batch}`);
       return res.status(404).json({ error: "No data found for this student." });
     }
 
+    // Extract program code from student ID (e.g., "PI" from "2022UGPI012")
+    // Assuming the format is consistent - adjust regex pattern as needed
+    const studentIdRegex = /(\d{4})([A-Z]{2})([A-Z]{2})(\d+)/;
+    const match = student.Regn.match(studentIdRegex);
+    
+    if (!match) {
+      return res.status(400).json({ error: "Invalid student ID format." });
+    }
+    
+    const [_, yearCode, degreeCode, programCode, studentNumber] = match;
+    const fullProgramCode = degreeCode + programCode; // e.g., "UGPI"
+    
+    console.log(`🔍 Processing student from year ${yearCode}, program ${fullProgramCode}`);
+
+    // Fetch all students
     const allStudents = await collection.find({}, { projection: { Regn: 1, semesterResults: 1 } }).toArray();
 
+    // Process student's personal data
     const cgpaHistory = [];
     const sgpaTrends = [];
     student.semesterResults.forEach(sem => {
@@ -107,10 +124,21 @@ app.get("/api/graph-data/:batch/:rollNumber", async (req, res) => {
       return { semester: `Sem ${sem}`, difficulty };
     });
 
-    // ✅ Class Averages & Highest CGPA (excluding 0 CGPA)
+    // Filter students by same year and program code
+    const sameYearAndProgramStudents = allStudents.filter(s => {
+      const studentMatch = s.Regn.match(studentIdRegex);
+      if (!studentMatch) return false;
+      const [_, sYear, sDegree, sProgram] = studentMatch;
+      const sFullProgram = sDegree + sProgram;
+      return sYear === yearCode && sFullProgram === fullProgramCode;
+    });
+
+    console.log(`👥 Found ${sameYearAndProgramStudents.length} students in ${yearCode} ${fullProgramCode} program`);
+
+    // ✅ Class Averages & Highest CGPA (excluding 0 CGPA) - for same program cohort
     let totalCGPA = 0, totalSGPA = 0, highestCGPA = 0, validCGPACount = 0, validSGPACount = 0;
 
-    allStudents.forEach(s => {
+    sameYearAndProgramStudents.forEach(s => {
       const lastResult = s.semesterResults[s.semesterResults.length - 1];
       if (lastResult?.CGPA > 0) {
         totalCGPA += lastResult.CGPA;
@@ -126,25 +154,25 @@ app.get("/api/graph-data/:batch/:rollNumber", async (req, res) => {
     const avgClassCGPAValue = validCGPACount > 0 ? totalCGPA / validCGPACount : 0;
     const avgClassSGPAValue = validSGPACount > 0 ? totalSGPA / validSGPACount : 0;
 
-    // ✅ Rank & Percentile
+    // ✅ Rank & Percentile - within same program cohort
     const latestCGPA = student.semesterResults[student.semesterResults.length - 1]?.CGPA || 0;
 
-    const validStudents = allStudents.filter(s => {
+    const validProgramStudents = sameYearAndProgramStudents.filter(s => {
       const last = s.semesterResults[s.semesterResults.length - 1];
       return last && last.CGPA > 0;
     });
 
-    const totalStudents = validStudents.length;
-    const sortedByCGPA = [...validStudents].sort((a, b) => {
+    const totalProgramStudents = validProgramStudents.length;
+    const sortedByCGPA = [...validProgramStudents].sort((a, b) => {
       const cgpaA = a.semesterResults[a.semesterResults.length - 1]?.CGPA || 0;
       const cgpaB = b.semesterResults[b.semesterResults.length - 1]?.CGPA || 0;
       return cgpaB - cgpaA;
     });
 
     let rank = sortedByCGPA.findIndex(s => s.Regn === rollNumber) + 1;
-    if (rank === 0) rank = totalStudents;
+    if (rank === 0) rank = totalProgramStudents;
 
-    const percentile = ((totalStudents - rank) / totalStudents * 100).toFixed(2);
+    const percentile = ((totalProgramStudents - rank) / totalProgramStudents * 100).toFixed(2);
 
     // ✅ Final Response
     res.json({
@@ -155,14 +183,18 @@ app.get("/api/graph-data/:batch/:rollNumber", async (req, res) => {
       classData: {
         avgClassCGPA: avgClassCGPAValue,
         avgClassSGPA: avgClassSGPAValue,
-        highestCGPA
+        highestCGPA,
+        programCode: fullProgramCode,
+        yearCode
       },
       rank,
-      totalStudents,
+      totalStudents: totalProgramStudents,
       percentile
     });
 
     console.log("📊 Graph Data Sent for Student:", {
+      program: fullProgramCode,
+      year: yearCode,
       cgpaHistory,
       sgpaTrends,
       avgClassCGPAValue,
