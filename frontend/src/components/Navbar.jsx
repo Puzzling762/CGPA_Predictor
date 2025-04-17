@@ -186,7 +186,7 @@ function ResponsiveAppBar() {
           {/* GitHub Repo Button on Desktop */}
           <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}>
             <Button
-              href="https://github.com/RajLucky" // Replace with your actual GitHub repo
+              href="https://github.com/Puzzling762/CGPA_Predictor"
               target="_blank"
               rel="noopener noreferrer"
               startIcon={<GitHubIcon />}
